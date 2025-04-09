@@ -8,7 +8,7 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/getFood', {
+        const response = await axios.get('https://agreeable-pebble-034724710.6.azurestaticapps.net/getFood', {
           withCredentials: true,
         });
         console.log('Fetched data:', response.data); // Log the fetched data
