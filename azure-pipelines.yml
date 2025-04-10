@@ -2,39 +2,27 @@ trigger:
 - main  # This will trigger the pipeline on commits to the main branch
 
 pool:
-  vmImage: 'windows-latest'  # Use a Windows agent
+  vmImage: 'windows-latest'
 
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '14.x'  # Specify the Node.js version you need
+    versionSpec: '20.x'
+
   displayName: 'Install Node.js'
+- script: | 
+    npm install
+    npm run build
+  displayName: 'npm install' 
 
-- task: Npm@1
-  displayName: 'Install npm dependencies'
+- task: CopyFiles@2
   inputs:
-    command: 'install'
-    workingDir: '.'  # Assuming your package.json is in the root directory
-
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    replaceExistingArchive: true
-  displayName: 'Archive files'
-
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    ArtifactName: 'backend'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
     publishLocation: 'Container'
-  displayName: 'Publish Artifact'
-- task: AzureRmWebAppDeployment@5
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'Azure for Students (3726fb87-ee7b-42c4-a39c-d437513f686c)'
-    appType: 'webApp'
-    WebAppName: 'testingportfolio'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+
